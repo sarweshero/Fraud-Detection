@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+SQLAlchemy
+PyMySQL
+alembic
+pydantic
+python-multipart
+joblib
+xgboost
+scikit-learn
+pandas
+numpy
