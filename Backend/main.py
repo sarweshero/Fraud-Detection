@@ -1,9 +1,13 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
+import face_recognition
+from io import BytesIO
+from PIL import Image
+import numpy as np
 from sqlalchemy.orm import Session
-import models
-import schemas
-import crud
-from database import SessionLocal, engine
+from . import models
+from . import schemas
+from . import crud
+from .database import SessionLocal, engine
 import joblib
 import pandas as pd
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +20,28 @@ except Exception:
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Credit Card Fraud Detection")
+
+@app.post("/face-auth")
+async def face_auth(file: UploadFile = File(...)):
+    # Load reference image
+    reference_image = face_recognition.load_image_file("me1_croped.jpg")
+    reference_encodings = face_recognition.face_encodings(reference_image)
+    if not reference_encodings:
+        raise HTTPException(status_code=500, detail="No face found in reference image.")
+    reference_encoding = reference_encodings[0]
+
+    # Load uploaded image
+    contents = await file.read()
+    img = Image.open(BytesIO(contents)).convert("RGB")
+    np_img = np.array(img)
+    uploaded_encodings = face_recognition.face_encodings(np_img)
+    if not uploaded_encodings:
+        return {"authenticated": False, "reason": "No face detected in uploaded image."}
+    uploaded_encoding = uploaded_encodings[0]
+
+    # Compare faces
+    match = face_recognition.compare_faces([reference_encoding], uploaded_encoding, tolerance=0.5)[0]
+    return {"authenticated": bool(match)}
 
 app.add_middleware(
     CORSMiddleware,

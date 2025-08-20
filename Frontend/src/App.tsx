@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { FaceAuth } from './components/FaceAuth';
 import { UserTable } from './components/UserTable';
 import { UserForm } from './components/UserForm';
 import { TransactionForm } from './components/TransactionForm';
 
+
 const App: React.FC = () => {
+  const [authenticated, setAuthenticated] = useState(false);
+  if (!authenticated) {
+    return <FaceAuth onAuthSuccess={() => setAuthenticated(true)} />;
+  }
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
