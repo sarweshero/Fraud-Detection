@@ -4,10 +4,10 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 from sqlalchemy.orm import Session
-from . import models
-from . import schemas
-from . import crud
-from .database import SessionLocal, engine
+import models
+import schemas
+import crud
+from database import SessionLocal, engine
 import joblib
 import pandas as pd
 from fastapi.middleware.cors import CORSMiddleware
